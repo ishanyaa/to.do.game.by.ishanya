@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Tracker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 100vh;
+            background: url('background.jpg') no-repeat center center fixed;
+            background-size: cover;
+            color: white; /* Set text color to white */
+        }
+
+        #taskList {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        #completedTasks {
+            margin-top: 20px;
+        }
+
+        .completed {
+            text-decoration: line-through;
+            color: #808080; /* Gray color for completed tasks */
+        }
+
+        #astronaut {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto; /* Center the astronaut horizontally */
+            transition: transform 0.5s ease-in-out;
+        }
+
+        #astronaut img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        #modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+        }
+
+        #modal-content {
+            background: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            color: white; /* Set text color to white inside the modal */
+        }
+
+        /* Increase text size */
+        h1, h2, p, button {
+            font-size: 24px;
+        }
+
+        input {
+            font-size: 18px;
+        }
+
+        #star {
+            width: 30px;
+            height: 30px;
+            background-color: yellow;
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            transition: transform 0.5s ease-in-out, background-color 1s ease-in-out;
+        }
+
+        #burst-star {
+            animation: burst 0.5s ease-in-out forwards;
+        }
+
+        @keyframes burst {
+            0% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(2); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <h1>Task Tracker</h1>
+        <p>Timer: <span id="timer">00:00:00</span></p>
+        <input type="text" id="taskInput" placeholder="Add a task...">
+        <button onclick="addTask()">Add Task</button>
+        <ul id="taskList"></ul>
+        <p>Points: <span id="points">0</span></p>
+        <button onclick="showPastGraphs()">Show Past Graphs</button>
+    </div>
+
+    <div id="completedTasks">
+        <h2>Completed Tasks</h2>
+        <ul id="completedTaskList"></ul>
+    </div>
+
+    <div id="modal">
+        <div id="modal-content">
+            <h2>Past Graphs</h2>
+            <!-- Include your past graph content here -->
+            <button onclick="hideModal()">Close</button>
+        </div>
+    </div>
+
+    <div id="astronaut">
+        <img src="astronaut.png" alt="Astronaut">
+    </div>
+
+    <div id="star"></div>
+
+    <script>
+        let timerInterval;
+        let points = 0;
+        let taskNumber = 1;
+
+        function startTimer() {
+            let seconds = 0;
+            timerInterval = setInterval(function () {
+                seconds++;
+                const formattedTime = new Date(seconds * 1000).toISOString().substr(11, 8);
+                document.getElementById('timer').innerText = formattedTime;
+            }, 1000);
+        }
+
+        function stopTimer() {
+            clearInterval(timerInterval);
+        }
+
+        function addTask() {
+            const taskInput = document.getElementById('taskInput');
+            const taskList = document.getElementById('taskList');
+            const taskText = taskInput.value.trim();
+
+            if (taskText !== '') {
+                const listItem = document.createElement('li');
+                listItem.innerText = `${taskNumber}. ${taskText}`;
+                listItem.onclick = function () {
+                    completeTask(this);
+                };
+                taskList.appendChild(listItem);
+                taskInput.value = '';
+                taskNumber++;
+            }
+        }
+
+        function completeTask(task) {
+            task.classList.add('completed');
+
+            // Animate the astronaut when a task is completed
+            const astronaut = document.getElementById('astronaut');
+            astronaut.style.transform = 'translateY(-50px)';
+
+            // Update points
+            points += 100;
+            document.getElementById('points').innerText = points;
+
+            // Move the completed task to the completed task section
+            const completedTaskList = document.getElementById('completedTaskList');
+            completedTaskList.appendChild(task);
+
+            // Check if all tasks are completed
+            if (taskListIsEmpty()) {
+                // All tasks completed
+                stopTimer();
+                burstStar(); // Trigger the star burst animation
+                alert('Congratulations! You completed all tasks and earned 1 trillion points!');
+            }
+        }
+
+        function taskListIsEmpty() {
+            const taskList = document.getElementById('taskList');
+            return taskList.children.length === 0;
+        }
+
+        function showPastGraphs() {
+            const modal = document.getElementById('modal');
+            modal.style.display = 'flex';
+        }
+
+        function hideModal() {
+            const modal = document.getElementById('modal');
+            modal.style.display = 'none';
+        }
+
+        function burstStar() {
+            const star = document.getElementById('star');
+            star.classList.add('burst-star');
+        }
+
+        // Start the timer when the page loads
+        startTimer();
+    </script>
+</body>
+</html>
